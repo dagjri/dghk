@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>動画リスト</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111111'/%3E%3Cpath d='M26 20l16 12-16 12z' fill='%23ffffff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#111111;
+  --gray:#666666;
+  --line:#dddddd;
+  --soft:#f5f5f5;
+  --bg:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;
+  color:var(--ink);background:var(--bg);line-height:1.6;
+}
+a{color:var(--ink)}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:16px}
+
+/* ---------- ヘッダー ---------- */
+header{
+  position:sticky;top:0;z-index:10;background:var(--bg);
+  border-bottom:2px solid var(--ink);padding:14px 16px;
+}
+.brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;margin-bottom:10px}
+.brand svg{width:24px;height:24px}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+#search{flex:1 1 220px;min-width:160px;padding:8px 12px;border:1.5px solid var(--ink);border-radius:8px;background:var(--bg)}
+#catFilter{padding:8px 10px;border:1.5px solid var(--ink);border-radius:8px;background:var(--bg)}
+.btn{
+  padding:8px 14px;border:1.5px solid var(--ink);border-radius:8px;
+  background:var(--bg);color:var(--ink);font-size:14px;font-weight:600;
+  transition:background .15s,color .15s;
+}
+.btn:hover{background:var(--ink);color:#fff}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:#333;border-color:#333}
+#viewBanner{
+  display:none;margin-bottom:10px;padding:8px 12px;border:1.5px dashed var(--ink);
+  border-radius:8px;background:var(--soft);font-size:13px;
+}
+body.readonly #viewBanner{display:block}
+body.readonly .editonly{display:none !important}
+
+/* ---------- メイン ---------- */
+main{max-width:860px;margin:0 auto;padding:16px}
+#count{font-size:13px;color:var(--gray);margin-bottom:12px}
+#empty{
+  text-align:center;padding:60px 16px;color:var(--gray);
+  border:1.5px dashed var(--line);border-radius:12px;
+}
+#empty .big{font-size:40px;margin-bottom:8px}
+
+.card{
+  border:1.5px solid var(--ink);border-radius:12px;
+  padding:14px 16px;margin-bottom:12px;background:var(--bg);
+  display:flex;gap:14px;align-items:stretch;
+}
+.thumb{
+  flex:0 0 96px;align-self:center;
+}
+.thumb img{
+  width:96px;height:54px;object-fit:cover;border:1px solid var(--line);
+  border-radius:6px;filter:grayscale(1);transition:filter .2s;display:block;
+}
+.thumb img:hover{filter:grayscale(0)}
+.thumb .noimg{
+  width:96px;height:54px;border:1px solid var(--line);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;background:var(--soft);
+}
+.thumb .noimg svg{width:22px;height:22px;opacity:.5}
+.card-body{flex:1;min-width:0}
+.card-title{font-size:16px;font-weight:700;word-break:break-word}
+.card-title a{text-decoration:none}
+.card-title a:hover{text-decoration:underline}
+.card-url{
+  font-size:12px;color:var(--gray);word-break:break-all;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.badge{
+  display:inline-block;padding:1px 10px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--ink);border-radius:999px;background:var(--bg);cursor:pointer;
+}
+.badge:empty{display:none}
+.tag{font-size:12px;color:var(--gray)}
+.memo{font-size:13px;color:var(--gray);margin-top:6px;white-space:pre-wrap;word-break:break-word}
+.card-date{font-size:11px;color:var(--gray);margin-top:6px}
+.card-act{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.card-act .btn{padding:5px 12px;font-size:12px}
+
+/* ---------- ダイアログ ---------- */
+dialog{
+  border:2px solid var(--ink);border-radius:12px;padding:0;
+  max-width:520px;width:calc(100% - 32px);color:var(--ink);
+}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dlg-inner{padding:20px}
+.dlg-title{font-size:18px;font-weight:700;margin-bottom:14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:4px}
+.field input,.field textarea{
+  width:100%;padding:8px 12px;border:1.5px solid var(--ink);border-radius:8px;background:var(--bg);
+}
+.field textarea{height:70px;resize:vertical}
+.field small{color:var(--gray);font-size:12px}
+.dlg-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+.share-link{
+  width:100%;height:90px;font-size:12px;padding:8px;border:1.5px solid var(--ink);
+  border-radius:8px;resize:none;word-break:break-all;background:var(--soft);
+}
+.warn{
+  margin-top:10px;padding:8px 12px;font-size:12px;background:var(--soft);
+  border:1.5px dashed var(--ink);border-radius:8px;color:var(--gray);
+}
+
+@media (max-width:560px){
+  .card{flex-direction:column}
+  .thumb{align-self:flex-start}
+  .thumb img,.thumb .noimg{width:100%;height:auto;aspect-ratio:16/9}
+  .card-act{flex-direction:row}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" fill="#111"/><path d="M26 20l16 12-16 12z" fill="#fff"/></svg>
+    動画リスト
+  </div>
+  <div id="viewBanner">👁 このページは「閲覧モード」で共有されています。編集するには自分のリポジトリのアプリを開いてください。</div>
+  <div class="controls">
+    <input id="search" type="search" placeholder="🔍 検索（タイトル・URL・タグ・メモ）">
+    <select id="catFilter"><option value="">すべての種類</option></select>
+    <button class="btn btn-dark editonly" id="btnAdd">＋ 追加</button>
+    <button class="btn editonly" id="btnShare">🔗 共有リンク</button>
+    <button class="btn editonly" id="btnExport">書き出し</button>
+    <button class="btn editonly" id="btnImport">読み込み</button>
+  </div>
+</header>
+
+<main>
+  <div id="count"></div>
+  <div id="list"></div>
+  <div id="empty" hidden>
+    <div class="big">▶</div>
+    <p>まだ動画がありません。「＋ 追加」から登録してください。</p>
+  </div>
+</main>
+
+<!-- 追加・編集ダイアログ -->
+<dialog id="dlg">
+  <form id="form" method="dialog">
+    <div class="dlg-inner">
+      <div class="dlg-title" id="dlgTitle">動画を追加</div>
+      <div class="field">
+        <label for="fTitle">タイトル *</label>
+        <input id="fTitle" type="text" required placeholder="例：〇〇の使い方講座">
+      </div>
+      <div class="field">
+        <label for="fUrl">URL *</label>
+        <input id="fUrl" type="url" required placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <div class="field">
+        <label for="fCat">種類（カテゴリ）</label>
+        <input id="fCat" type="text" list="catList" placeholder="例：講座 / 音楽 / 料理 など自由入力">
+        <datalist id="catList"></datalist>
+        <small>入力欄の下に出てくる候補を選ぶか、新しい種類を自由に入力できます</small>
+      </div>
+      <div class="field">
+        <label for="fTags">タグ（カンマ区切り）</label>
+        <input id="fTags" type="text" placeholder="例：入門, 2026, お気に入り">
+      </div>
+      <div class="field">
+        <label for="fMemo">メモ</label>
+        <textarea id="fMemo" placeholder="例：後半のまとめが特に参考になった"></textarea>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="btn" id="btnCancel">キャンセル</button>
+        <button type="submit" class="btn btn-dark">保存</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- 共有ダイアログ -->
+<dialog id="shareDlg">
+  <div class="dlg-inner">
+    <div class="dlg-title">閲覧用の共有リンク</div>
+    <textarea id="shareText" class="share-link" readonly></textarea>
+    <p class="warn">⚠ このリンクには<b>現在の全データが含まれます</b>。受け取った人は閲覧のみでき、編集はできません。データを更新したら、リンクを作り直してください。</p>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="btnCopyLink">コピー</button>
+      <button type="button" class="btn btn-dark" id="btnCloseShare">閉じる</button>
+    </div>
+  </div>
+</dialog>
+
+<input type="file" id="fileImport" accept=".json,application/json" hidden>
+
+<script>
+"use strict";
+(function () {
+  var LS_KEY = "videoList.v1";
+  var items = [];
+  var viewMode = false;
+  var editingId = null;
+
+  function el(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  /* ---------- データの読み書き ---------- */
+  function load() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(LS_KEY));
+      items = Array.isArray(raw) ? raw : [];
+    } catch (e) { items = []; }
+  }
+  function save() { localStorage.setItem(LS_KEY, JSON.stringify(items)); }
+
+  /* ---------- 共有（閲覧モード） ---------- */
+  // URL例: index.html?view#d=（データをbase64化したもの）
+  function checkViewMode() {
+    var params = new URLSearchParams(location.search);
+    if (!params.has("view")) return;
+    viewMode = true;
+    document.body.classList.add("readonly");
+    var m = location.hash.match(/d=([A-Za-z0-9+/=_-]+)/);
+    if (m) {
+      try {
+        var json = decodeURIComponent(escape(atob(m[1].replace(/_/g, "/").replace(/-/g, "+"))));
+        var data = JSON.parse(json);
+        if (Array.isArray(data)) items = data;
+      } catch (e) { /* 破損リンクは無視 */ }
+    }
+  }
+
+  function buildShareLink() {
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(items))))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return location.origin + location.pathname + "?view#d=" + b64;
+  }
+
+  /* ---------- 表示 ---------- */
+  function catShade(cat) {
+    // 種類ごとに白〜黒の濃淡を安定して割り当て（モノクロ用）
+    var shades = ["#111", "#3a3a3a", "#6a6a6a", "#999", "#c4c4c4"];
+    var h = 0;
+    for (var i = 0; i < cat.length; i++) h = (h * 31 + cat.charCodeAt(i)) % 997;
+    return shades[h % shades.length];
+  }
+
+  function youtubeId(url) {
+    var m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function cardHTML(it) {
+    var cat = it.cat || "";
+    var shade = cat ? catShade(cat) : "";
+    var badge = cat
+      ? '<button type="button" class="badge" data-cat="' + esc(cat) + '" style="color:' +
+        (shade === "#c4c4c4" ? "#111" : "#fff") + ';background:' + shade + ';border-color:' + shade + '">' +
+        esc(cat) + '</button>'
+      : "";
+    var tags = (it.tags || []).map(function (t) {
+      return '<span class="tag">#' + esc(t) + "</span>";
+    }).join(" ");
+    var yid = youtubeId(it.url);
+    var thumb = yid
+      ? '<img src="https://i.ytimg.com/vi/' + yid + '/mqdefault.jpg" alt="" loading="lazy">'
+      : '<div class="noimg"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" fill="#111"/><path d="M26 20l16 12-16 12z" fill="#fff"/></svg></div>';
+    var acts = viewMode ? "" :
+      '<div class="card-act">' +
+      '<button type="button" class="btn editonly" data-edit="' + it.id + '">編集</button>' +
+      '<button type="button" class="btn editonly" data-del="' + it.id + '">削除</button>' +
+      "</div>";
+    return '<article class="card">' +
+      '<div class="thumb"><a href="' + esc(it.url) + '" target="_blank" rel="noopener">' + thumb + "</a></div>" +
+      '<div class="card-body">' +
+        '<div class="card-title"><a href="' + esc(it.url) + '" target="_blank" rel="noopener">' + esc(it.title) + "</a></div>" +
+        '<div class="card-url">' + esc(it.url) + "</div>" +
+        '<div class="card-meta">' + badge + tags + "</div>" +
+        (it.memo ? '<div class="memo">' + esc(it.memo) + "</div>" : "") +
+        '<div class="card-date">登録日: ' + esc(it.date) + "</div>" +
+      "</div>" + acts + "</article>";
+  }
+
+  function render() {
+    // 種類の一覧（フィルタと入力候補）
+    var cats = [];
+    items.forEach(function (it) { if (it.cat && cats.indexOf(it.cat) === -1) cats.push(it.cat); });
+    cats.sort();
+    var sel = el("catFilter");
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">すべての種類</option>' + cats.map(function (c) {
+      return '<option value="' + esc(c) + '"' + (c === cur ? " selected" : "") + ">" + esc(c) + "</option>";
+    }).join("");
+    el("catList").innerHTML = cats.map(function (c) { return '<option value="' + esc(c) + '">'; }).join("");
+
+    // 検索 + 種類で絞り込み
+    var q = el("search").value.trim().toLowerCase();
+    var f = sel.value;
+    var shown = items.filter(function (it) {
+      if (f && it.cat !== f) return false;
+      if (!q) return true;
+      return [it.title, it.url, it.cat, (it.tags || []).join(" "), it.memo].join(" ").toLowerCase().indexOf(q) !== -1;
+    });
+
+    el("count").textContent = items.length ? shown.length + " 件表示中（全 " + items.length + " 件）" : "";
+    el("empty").hidden = shown.length > 0;
+    el("list").innerHTML = shown.map(cardHTML).join("");
+  }
+
+  /* ---------- 追加・編集 ---------- */
+  function openDialog(it) {
+    editingId = it ? it.id : null;
+    el("dlgTitle").textContent = it ? "動画を編集" : "動画を追加";
+    el("fTitle").value = it ? it.title : "";
+    el("fUrl").value = it ? it.url : "";
+    el("fCat").value = it ? (it.cat || "") : "";
+    el("fTags").value = it ? (it.tags || []).join(", ") : "";
+    el("fMemo").value = it ? (it.memo || "") : "";
+    el("dlg").showModal();
+    el("fTitle").focus();
+  }
+
+  function submitForm() {
+    var title = el("fTitle").value.trim();
+    var url = el("fUrl").value.trim();
+    if (!title || !/^https?:\/\//i.test(url)) {
+      alert("タイトルと http(s) で始まるURLは必須です。");
+      return;
+    }
+    var data = {
+      title: title,
+      url: url,
+      cat: el("fCat").value.trim(),
+      tags: el("fTags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean),
+      memo: el("fMemo").value.trim()
+    };
+    if (editingId) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].id === editingId) { Object.assign(items[i], data); break; }
+      }
+    } else {
+      data.id = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      data.date = new Date().toISOString().slice(0, 10);
+      items.unshift(data);
+    }
+    save();
+    el("dlg").close();
+    render();
+  }
+
+  /* ---------- 書き出し / 読み込み ---------- */
+  function exportJSON() {
+    var blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "video-list-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  function importJSON(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var data;
+      try { data = JSON.parse(reader.result); } catch (e) { alert("JSONファイルを読み込めませんでした。"); return; }
+      if (data && Array.isArray(data.items)) data = data.items;
+      if (!Array.isArray(data) || !data.length) { alert("動画データが見つかりませんでした。"); return; }
+      if (!confirm((data.length) + " 件のデータを読み込み、今のリストと置き換えます。よろしいですか？")) return;
+      items = data.map(function (it, i) {
+        return {
+          id: it.id || String(Date.now()) + "-" + i,
+          title: it.title || "(無題)",
+          url: it.url || "",
+          cat: it.cat || "",
+          tags: Array.isArray(it.tags) ? it.tags : [],
+          memo: it.memo || "",
+          date: it.date || ""
+        };
+      }).filter(function (it) { return it.url; });
+      save();
+      render();
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- イベント ---------- */
+  el("search").addEventListener("input", render);
+  el("catFilter").addEventListener("change", render);
+  el("btnAdd").addEventListener("click", function () { openDialog(null); });
+  el("btnCancel").addEventListener("click", function () { el("dlg").close(); });
+  el("form").addEventListener("submit", function (e) { e.preventDefault(); submitForm(); });
+
+  el("list").addEventListener("click", function (e) {
+    var t = e.target;
+    var catBtn = t.closest ? t.closest(".badge") : null;
+    if (catBtn) { el("catFilter").value = catBtn.getAttribute("data-cat"); render(); return; }
+    var editBtn = t.closest ? t.closest("[data-edit]") : null;
+    if (editBtn) {
+      var id1 = editBtn.getAttribute("data-edit");
+      for (var i = 0; i < items.length; i++) if (items[i].id === id1) { openDialog(items[i]); break; }
+      return;
+    }
+    var delBtn = t.closest ? t.closest("[data-del]") : null;
+    if (delBtn) {
+      var id2 = delBtn.getAttribute("data-del");
+      var target = null;
+      for (var j = 0; j < items.length; j++) if (items[j].id === id2) { target = items[j]; break; }
+      if (target && confirm("「" + target.title + "」を削除します。よろしいですか？")) {
+        items.splice(j, 1);
+        save();
+        render();
+      }
+    }
+  });
+
+  el("btnShare").addEventListener("click", function () {
+    if (!items.length) { alert("まだデータがありません。先に動画を追加してください。"); return; }
+    el("shareText").value = buildShareLink();
+    el("shareDlg").showModal();
+  });
+  el("btnCopyLink").addEventListener("click", function () {
+    var ta = el("shareText");
+    ta.select();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).then(function () {
+        el("btnCopyLink").textContent = "コピーしました！";
+        setTimeout(function () { el("btnCopyLink").textContent = "コピー"; }, 1500);
+      });
+    } else {
+      document.execCommand("copy");
+      el("btnCopyLink").textContent = "コピーしました！";
+      setTimeout(function () { el("btnCopyLink").textContent = "コピー"; }, 1500);
+    }
+  });
+  el("btnCloseShare").addEventListener("click", function () { el("shareDlg").close(); });
+
+  el("btnExport").addEventListener("click", exportJSON);
+  el("btnImport").addEventListener("click", function () { el("fileImport").click(); });
+  el("fileImport").addEventListener("change", function () {
+    if (this.files && this.files[0]) importJSON(this.files[0]);
+    this.value = "";
+  });
+
+  /* ---------- 起動 ---------- */
+  checkViewMode();
+  load();
+  render();
+
+  // PWA（アプリ化）
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
