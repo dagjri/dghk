@@ -1,5 +1,5 @@
-// 動画リスト - Service Worker（アプリ化・オフライン対応用）
-var CACHE_NAME = "video-list-v1";
+// 動画リスト v2 - Service Worker
+var CACHE_NAME = "video-list-v2";
 var ASSETS = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", function (e) {
@@ -26,12 +26,9 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(
     caches.match(e.request).then(function (cached) {
       var fetched = fetch(e.request).then(function (res) {
-        // 取得に成功したらキャッシュを更新（YouTubeサムネイルなども含む）
         if (res && res.status === 200) {
           var copy = res.clone();
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(e.request, copy);
-          });
+          caches.open(CACHE_NAME).then(function (cache) { cache.put(e.request, copy); });
         }
         return res;
       }).catch(function () { return cached; });
