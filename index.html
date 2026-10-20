@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>動画リスト</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111111'/%3E%3Cpath d='M26 20l16 12-16 12z' fill='%23ffffff'/%3E%3C/svg%3E">
@@ -19,25 +19,46 @@ html{-webkit-text-size-adjust:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;
   color:var(--ink);background:var(--bg);line-height:1.6;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
 }
 button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:16px}
 a{color:var(--ink)}
 
 header{
-  position:sticky;top:0;z-index:20;background:var(--bg);
-  border-bottom:2px solid var(--ink);padding:12px 16px 10px;
+  position:sticky;top:env(safe-area-inset-top);z-index:20;background:var(--bg);
+  border-bottom:2px solid var(--ink);
+  padding:10px 14px;
 }
-.brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;margin-bottom:8px}
-.brand svg{width:24px;height:24px}
-.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
-.controls .btn{padding:6px 10px;font-size:12px}
+.brand-row{display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:6px;font-size:18px;font-weight:700;flex:1;min-width:0}
+.brand svg{width:20px;height:20px;flex-shrink:0}
+.bar-toggle{
+  border:1.5px solid var(--ink);background:var(--bg);color:var(--ink);
+  font-size:14px;font-weight:700;padding:6px 10px;border-radius:8px;
+}
+.search-row{display:flex;gap:6px;margin-top:8px}
 .input{padding:6px 10px;border:1.5px solid var(--ink);border-radius:8px;background:var(--bg);font-size:13px}
 #search{flex:1 1 200px;min-width:140px}
-.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+
+#toolbar{
+  display:none;background:var(--bg);
+  border-bottom:2px solid var(--ink);
+  padding:10px 14px 12px;
+  animation:slideDown .2s ease-out;
+}
+#toolbar.open{display:block}
+@keyframes slideDown{
+  from{ opacity:0; transform:translateY(-8px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.toolbar-actions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.toolbar-actions .btn{padding:7px 11px;font-size:13px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tab{
-  padding:5px 12px;font-size:12px;border:1.5px solid var(--ink);
-  border-radius:999px;background:var(--bg);font-weight:600;
+  padding:6px 12px;font-size:12px;border:1.5px solid var(--ink);
+  border-radius:999px;background:var(--bg);font-weight:600;flex-shrink:0;
 }
 .tab.active{background:var(--ink);color:#fff}
 
@@ -57,7 +78,6 @@ header{
   padding:1px 8px;font-size:12px;background:var(--ink);color:#fff;border-radius:999px;
   user-select:none;
 }
-.chip.outline{background:var(--bg);color:var(--ink)}
 .chip .x{cursor:pointer;font-weight:700;padding:0 2px}
 .chip-input{
   flex:1;min-width:80px;border:0;outline:none;padding:2px 4px;font-size:13px;background:transparent;
@@ -74,7 +94,7 @@ header{
 .btn-sm{padding:3px 8px;font-size:11px}
 
 #viewBanner{
-  display:none;margin-bottom:8px;padding:6px 12px;border:1.5px dashed var(--ink);
+  display:none;margin:8px 14px;padding:8px 12px;border:1.5px dashed var(--ink);
   border-radius:8px;background:var(--soft);font-size:12px;
 }
 body.readonly #viewBanner{display:block}
@@ -86,8 +106,6 @@ main{max-width:920px;margin:0 auto;padding:14px 16px}
   text-align:center;padding:50px 16px;color:var(--gray);
   border:1.5px dashed var(--line);border-radius:12px;
 }
-#empty .big{font-size:40px;margin-bottom:6px}
-
 .group-section{
   border:1.5px solid var(--ink);border-radius:12px;margin-bottom:12px;overflow:hidden;
 }
@@ -114,12 +132,11 @@ main{max-width:920px;margin:0 auto;padding:14px 16px}
   width:96px;height:54px;border:1px solid var(--line);border-radius:6px;
   display:flex;align-items:center;justify-content:center;background:var(--soft);
 }
-.thumb .noimg svg{width:20px;height:20px;opacity:.5}
 .card-body{flex:1;min-width:0}
 .card-title{font-size:15px;font-weight:700;word-break:break-word;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .card-title a{text-decoration:none}
 .card-title a:hover{text-decoration:underline}
-.star{cursor:pointer;color:var(--gray);font-size:16px;line-height:1}
+.star{cursor:pointer;color:var(--gray);font-size:18px;line-height:1}
 .star.on{color:var(--ink)}
 .card-url{
   font-size:11px;color:var(--gray);word-break:break-all;
@@ -178,51 +195,57 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 
 .profile-list{max-height:240px;overflow:auto;border:1.5px solid var(--line);border-radius:8px;padding:6px}
 .profile-row{
-  display:flex;align-items:center;gap:6px;padding:4px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:6px;padding:4px;border-bottom:1px solid var(--line);flex-wrap:wrap;
 }
 .profile-row:last-child{border-bottom:0}
 .profile-row input{padding:3px 6px;font-size:13px;border:1px solid var(--ink);border-radius:6px}
 .profile-row .pf-name{flex:0 0 130px}
-.profile-row .pf-groups{flex:1}
+.profile-row .pf-groups{flex:1;min-width:140px}
 
-.map-row{
-  display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dotted var(--line);
+.roster-source{
+  font-size:11px;color:var(--gray);margin-top:6px;line-height:1.5;
+  border-top:1px solid var(--line);padding-top:6px;
 }
-.map-row:last-child{border-bottom:0}
-.map-row .name{min-width:90px;font-weight:600;font-size:13px}
-.map-row .groups{flex:1;font-size:12px;color:var(--gray)}
 
 @media (max-width:560px){
   .card{flex-direction:column}
   .thumb{align-self:flex-start}
   .thumb img,.thumb .noimg{width:100%;height:auto;aspect-ratio:16/9;max-width:240px}
   .card-act{flex-direction:row}
+  .row2 .field{min-width:140px}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">
-    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" fill="#111"/><path d="M26 20l16 12-16 12z" fill="#fff"/></svg>
-    動画リスト
-  </div>
-  <div id="viewBanner">👁 閲覧モード（編集不可）。自分のリストを開くには共有元の URL か保存した場所から。</div>
-  <div class="controls">
-    <input id="search" class="input" type="search" placeholder="🔍 検索（タイトル・出演者・グループ・タグ・メモ）">
-    <select id="sortBy" class="input">
+  <div class="brand-row">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" fill="#111"/><path d="M26 20l16 12-16 12z" fill="#fff"/></svg>
+      動画リスト
+    </div>
+    <button class="bar-toggle" id="btnToggle" type="button">≡ メニュー</button>
+    <select id="sortBy" class="input" style="font-size:12px;padding:5px 8px">
       <option value="dateDesc">新しい順</option>
       <option value="dateAsc">古い順</option>
       <option value="titleAsc">タイトル A→Z</option>
       <option value="titleDesc">タイトル Z→A</option>
       <option value="ratingDesc">評価が高い順</option>
     </select>
-    <button class="btn editonly" id="btnFilters">⚙ フィルタ</button>
-    <button class="btn btn-dark editonly" id="btnAdd">＋ 追加</button>
-    <button class="btn editonly" id="btnProfile">👤 出演者プロフィール</button>
-    <button class="btn editonly" id="btnShare">🔗 共有</button>
-    <button class="btn editonly" id="btnExport">書き出し</button>
-    <button class="btn editonly" id="btnImport">読み込み</button>
+  </div>
+  <div class="search-row">
+    <input id="search" class="input" type="search" placeholder="検索 (タイトル・出演者・グループ・タグ・メモ)">
+  </div>
+</header>
+
+<div id="toolbar">
+  <div class="toolbar-actions">
+    <button class="btn editonly" id="btnFilters" type="button">フィルタ</button>
+    <button class="btn editonly btn-dark" id="btnAdd" type="button">追加</button>
+    <button class="btn editonly" id="btnProfile" type="button">出演者プロフィール</button>
+    <button class="btn editonly" id="btnShare" type="button">共有リンク</button>
+    <button class="btn editonly" id="btnExport" type="button">書き出し</button>
+    <button class="btn editonly" id="btnImport" type="button">読み込み</button>
   </div>
   <div class="tabs" id="tabs">
     <button class="tab active" data-view="flat">リスト</button>
@@ -252,31 +275,33 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <option value="watching">視聴中</option>
         <option value="watched">視聴済み</option>
       </select>
-      <label style="min-width:auto">★</label>
+      <label>評価</label>
       <select id="fRating" class="input">
         <option value="">指定なし</option>
-        <option value="5">★5</option>
-        <option value="4">★4 以上</option>
-        <option value="3">★3 以上</option>
-        <option value="2">★2 以上</option>
-        <option value="1">★1 以上</option>
+        <option value="5">5以上</option>
+        <option value="4">4以上</option>
+        <option value="3">3以上</option>
+        <option value="2">2以上</option>
+        <option value="1">1以上</option>
       </select>
-      <label style="min-width:auto"><input type="checkbox" id="fFav"> お気に入りのみ</label>
-      <button class="btn btn-sm" id="btnResetFilters">リセット</button>
+      <label style="font-weight:400"><input type="checkbox" id="fFav"> お気に入り</label>
+      <button class="btn btn-sm" id="btnResetFilters" type="button">リセット</button>
     </div>
   </div>
-</header>
+  <div class="roster-source">既定名簿 (収集 2026-10-20 / 出典 STARTO公式・Wikipedia): なにわ男子 → SixTONES → Aぇ! group → Boys be → 旧Lilかんさい (無所属)。年齢順、関西は変更があった場合はプロフィール画面で更新してください。</div>
+</div>
+
+<div id="viewBanner">閲覧モード (編集不可)。自分のリストを開くには共有元 URL か自分の保存先から。</div>
 
 <main>
   <div id="meta"></div>
   <div id="view"></div>
   <div id="empty" hidden>
-    <div class="big">▶</div>
-    <p>まだ動画がありません。「＋ 追加」から登録してください。</p>
+    <div class="big">再生リスト</div>
+    <p>まだ動画がありません。「追加」から登録してください。</p>
   </div>
 </main>
 
-<!-- 追加・編集 -->
 <dialog id="dlg">
   <form id="form" method="dialog">
     <div class="dlg-inner">
@@ -291,7 +316,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       </div>
       <div class="row2">
         <div class="field">
-          <label for="fCat">種類（例：バラエティ / ドラマ / MV）</label>
+          <label for="fCat">種類 (例: バラエティ / ドラマ / MV)</label>
           <input id="fCat" type="text" list="catList" placeholder="自由入力">
           <datalist id="catList"></datalist>
         </div>
@@ -318,24 +343,24 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         </div>
       </div>
       <div class="field">
-        <label>出演者（Enter で追加）</label>
-        <input id="fPerformersInput" type="text" placeholder="例：山田太郎, 鈴木花子">
+        <label>出演者 (Enter で追加)</label>
+        <input id="fPerformersInput" type="text" placeholder="例: 山田太郎, 鈴木花子">
         <div id="fPerformersChips" class="chipbox" style="margin-top:4px;min-height:30px"></div>
         <small>プロフィールに登録した人は自動的に所属グループが提案されます</small>
       </div>
       <div class="field">
-        <label>出演グループ（Enter で追加）</label>
-        <input id="fGroupsInput" type="text" placeholder="例：嵐, 乃木坂46">
+        <label>出演グループ (Enter で追加)</label>
+        <input id="fGroupsInput" type="text" placeholder="例: 嵐, 乃木坂46">
         <div id="fGroupsChips" class="chipbox" style="margin-top:4px;min-height:30px"></div>
       </div>
       <div class="field">
         <label>再生リスト</label>
-        <input id="fPlaylist" type="text" list="playlistList" placeholder="例：今日の気分">
+        <input id="fPlaylist" type="text" list="playlistList" placeholder="例: 今日の気分">
         <datalist id="playlistList"></datalist>
       </div>
       <div class="field">
-        <label>タグ（カンマ区切り）</label>
-        <input id="fTags" type="text" placeholder="例：入門, 2026">
+        <label>タグ (カンマ区切り)</label>
+        <input id="fTags" type="text" placeholder="例: 入門, 2026">
       </div>
       <div class="field">
         <label>メモ</label>
@@ -349,16 +374,15 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   </form>
 </dialog>
 
-<!-- プロフィール管理 -->
 <dialog id="profileDlg">
   <div class="dlg-inner">
     <div class="dlg-title">出演者プロフィール</div>
     <p class="warn">出演者とグループの紐付けを管理します。出演者を追加すると、関連するグループが動画の追加時に自動提案されます。</p>
     <div class="field">
       <label>出演者を追加</label>
-      <div style="display:flex;gap:6px">
-        <input id="pfName" type="text" placeholder="出演者名" style="flex:1">
-        <input id="pfGroups" type="text" placeholder="所属グループ（カンマ区切り）" style="flex:2">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input id="pfName" type="text" placeholder="出演者名" style="flex:1;min-width:120px">
+        <input id="pfGroups" type="text" placeholder="所属グループ（カンマ区切り）" style="flex:2;min-width:160px">
         <button class="btn btn-dark" id="pfAdd" type="button">追加</button>
       </div>
     </div>
@@ -373,12 +397,11 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   </div>
 </dialog>
 
-<!-- 共有 -->
 <dialog id="shareDlg">
   <div class="dlg-inner">
     <div class="dlg-title">閲覧用 共有リンク</div>
     <textarea id="shareText" class="share-link" readonly></textarea>
-    <p class="warn">⚠ データ更新後はリンクを作り直してください。</p>
+    <p class="warn">データ更新後はリンクを作り直してください。</p>
     <div class="dlg-actions">
       <button type="button" class="btn" id="btnCopyLink">コピー</button>
       <button type="button" class="btn btn-dark" id="btnCloseShare">閉じる</button>
@@ -386,7 +409,6 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   </div>
 </dialog>
 
-<!-- インポート -->
 <dialog id="importDlg">
   <div class="dlg-inner">
     <div class="dlg-title">データを読み込む</div>
@@ -394,21 +416,22 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <label>ファイル形式</label>
       <select id="impFormat" class="input">
         <option value="auto">自動判定</option>
-        <option value="json">JSON（書き出し形式）</option>
-        <option value="csv">CSV（Notion 書き出し形式）</option>
+        <option value="json">JSON（アプリ書き出し形式）</option>
+        <option value="csv">CSV</option>
+        <option value="md">Markdown (Notion 書き出し形式)</option>
       </select>
     </div>
     <div id="csvMapArea" hidden>
-      <div class="warn">CSV の列名とアプリの項目を対応させてください。タイトル列とURL列は必須です。</div>
+      <div class="warn">CSV / Markdown テーブルの列名とアプリの項目を対応させてください。タイトル列とURL列は必須です。</div>
       <div class="field"><label>タイトル列</label><select id="mapTitle" class="input"></select></div>
       <div class="field"><label>URL列</label><select id="mapUrl" class="input"></select></div>
-      <div class="field"><label>種類列（任意）</label><select id="mapCat" class="input"></select></div>
-      <div class="field"><label>画質列（任意）</label><select id="mapQuality" class="input"></select></div>
-      <div class="field"><label>出演者列（任意）</label><select id="mapPerformers" class="input"></select></div>
-      <div class="field"><label>グループ列（任意）</label><select id="mapGroups" class="input"></select></div>
-      <div class="field"><label>タグ列（任意）</label><select id="mapTags" class="input"></select></div>
-      <div class="field"><label>メモ列（任意）</label><select id="mapMemo" class="input"></select></div>
-      <div class="field"><label>日付列（任意）</label><select id="mapDate" class="input"></select></div>
+      <div class="field"><label>種類列 (任意)</label><select id="mapCat" class="input"></select></div>
+      <div class="field"><label>画質列 (任意)</label><select id="mapQuality" class="input"></select></div>
+      <div class="field"><label>出演者列 (任意)</label><select id="mapPerformers" class="input"></select></div>
+      <div class="field"><label>グループ列 (任意)</label><select id="mapGroups" class="input"></select></div>
+      <div class="field"><label>タグ列 (任意)</label><select id="mapTags" class="input"></select></div>
+      <div class="field"><label>メモ列 (任意)</label><select id="mapMemo" class="input"></select></div>
+      <div class="field"><label>日付列 (任意)</label><select id="mapDate" class="input"></select></div>
     </div>
     <div class="dlg-actions">
       <button type="button" class="btn" id="btnCloseImport">キャンセル</button>
@@ -417,12 +440,13 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   </div>
 </dialog>
 
-<input type="file" id="fileImport" accept=".json,application/json,.csv,text/csv" hidden>
+<input type="file" id="fileImport" accept=".json,application/json,.csv,text/csv,.md,text/markdown,.markdown" hidden>
 
 <script>
 "use strict";
 (function () {
-  var LS_KEY = "videoList.v2";
+  var LS_KEY = "videoList.v3";
+  var LS_KEY_V2 = "videoList.v2";
   var LS_KEY_V1 = "videoList.v1";
   var state = {
     items: [],
@@ -438,6 +462,8 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   var viewMode = false;
   var editingId = null;
   var csvBuffer = null;
+  var csvHeaders = null;
+  var csvFormat = "csv";
 
   function el(id) { return document.getElementById(id); }
   function esc(s) {
@@ -445,6 +471,45 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
+
+  var DEFAULT_CATS = ["ドラマ","映画","バラエティ","ライブ・配信","特典類","音楽番組","シングル・アルバム特典","ドキュメンタリー","配信"];
+  var DEFAULT_ROSTER = [
+    { name:"なにわ男子", members:[
+      { n:"藤原丈一郎", d:"1996-02-08" },
+      { n:"西畑大吾",   d:"1997-01-09" },
+      { n:"大橋和也",   d:"1997-08-09" },
+      { n:"高橋恭平",   d:"2000-02-28" },
+      { n:"大西流星",   d:"2001-08-07" },
+      { n:"道枝駿佑",   d:"2002-07-25" },
+      { n:"長尾謙杜",   d:"2002-08-15" }
+    ]},
+    { name:"SixTONES", members:[
+      { n:"髙地優吾",   d:"1994-03-08" },
+      { n:"京本大我",   d:"1994-12-03" },
+      { n:"田中樹",     d:"1995-06-15" },
+      { n:"松村北斗",   d:"1995-06-18" },
+      { n:"ジェシー",   d:"1996-06-11" },
+      { n:"森本慎太郎", d:"1997-07-15" }
+    ]},
+    { name:"Aぇ! group", members:[
+      { n:"末澤誠也",         d:"1994-08-24" },
+      { n:"草間リチャード敬太", d:"1996-01-11" },
+      { n:"正門良規",         d:"1996-11-28" },
+      { n:"小島健",           d:"1999-06-25" },
+      { n:"佐野晶哉",         d:"2002-03-13" }
+    ]},
+    { name:"Boys be", members:[
+      { n:"丸岡晃聖", d:"2007-11-16" },
+      { n:"山中一輝", d:"2008-07-20" },
+      { n:"千田藍生", d:"2008-12-22" }
+    ]},
+    { name:"無所属", members:[
+      { n:"嶋﨑斗亜" },
+      { n:"西村拓哉" },
+      { n:"大西風雅" },
+      { n:"岡﨑彪太郎" }
+    ]}
+  ];
 
   function load() {
     try {
@@ -458,15 +523,18 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     }
     if (!state.items.length) {
       try {
-        var v1 = JSON.parse(localStorage.getItem(LS_KEY_V1));
-        if (Array.isArray(v1) && v1.length) {
-          state.items = v1.map(function(it){
-            return norm({
-              id: it.id, title: it.title, url: it.url,
-              cat: it.cat, tags: it.tags, memo: it.memo, date: it.date
-            });
-          });
+        var v2 = JSON.parse(localStorage.getItem(LS_KEY_V2));
+        if (v2 && Array.isArray(v2.items) && v2.items.length) {
+          state.items = v2.items.map(function(it){ return norm(it); });
+          state.profile = v2.profile || state.profile;
+          state.playlists = v2.playlists || [];
           save();
+        } else {
+          var v1 = JSON.parse(localStorage.getItem(LS_KEY_V1));
+          if (Array.isArray(v1) && v1.length) {
+            state.items = v1.map(function(it){ return norm(it); });
+            save();
+          }
         }
       } catch(e){}
     }
@@ -495,34 +563,59 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     };
   }
 
-  var DEFAULT_CATS = ["ドラマ","映画","バラエティ","ライブ・配信","特典類","音楽番組","シングル・アルバム特典","ドキュメンタリー","配信"];
-  var DEFAULT_PERFORMER_GROUPS = {
-    "藤原丈一郎":["なにわ男子"],"西畑大吾":["なにわ男子"],"大橋和也":["なにわ男子"],"高橋恭平":["なにわ男子"],"大西流星":["なにわ男子"],"道枝駿佑":["なにわ男子"],"長尾謙杜":["なにわ男子"],
-    "京本大我":["SixTONES"],"田中樹":["SixTONES"],"松村北斗":["SixTONES"],"ジェシー":["SixTONES"],"森本慎太郎":["SixTONES"],
-    "髙地優吾":["Hey!Say!JUMP"],"山田涼介":["Hey!Say!JUMP"],"菊池風磨":["Hey!Say!JUMP"],
-    "目黒蓮":["SnowMan"],"向井康二":["SnowMan"],
-    "永瀬廉":["King & Prince"]
-  };
-
   function checkViewMode(){
     var p = new URLSearchParams(location.search);
     if (!p.has("view")) return;
     viewMode = true;
     document.body.classList.add("readonly");
-    var m = location.hash.match(/d=([A-Za-z0-9+/=_-]+)/);
+    var m = location.hash.match(/d=([A-Za-z0-9\-_]+)/);
     if (m){
-      try{
-        var json = decodeURIComponent(escape(atob(m[1].replace(/_/g,"/").replace(/-/g,"+"))));
-        var data = JSON.parse(json);
-        if (Array.isArray(data)) state.items = data.map(norm);
-      }catch(e){}
+      decodeState(m[1]).then(function(data){
+        if (data && Array.isArray(data.items)) state.items = data.items.map(norm);
+        if (data && data.profile) state.profile = data.profile;
+        if (data && data.playlists) state.playlists = data.playlists;
+        render();
+      });
     }
   }
-  function buildShareLink(){
-    var share = { items: state.items, profile: state.profile, playlists: state.playlists };
-    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(share))))
-      .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-    return location.origin + location.pathname + "?view#d=" + b64;
+
+  function b64url(bytes){
+    var bin = "";
+    for (var i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  }
+  function fromB64url(s){
+    s = s.replace(/-/g,"+").replace(/_/g,"/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s);
+    var bytes = new Uint8Array(bin.length);
+    for (var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  async function encodeState(obj){
+    var json = JSON.stringify(obj);
+    var bytes = new TextEncoder().encode(json);
+    if (typeof CompressionStream === "undefined") return b64url(bytes);
+    var blob = new Blob([json], { type:"application/json" });
+    var cs = blob.stream().pipeThrough(new CompressionStream("gzip"));
+    var buf = await new Response(cs).arrayBuffer();
+    return b64url(new Uint8Array(buf));
+  }
+  async function decodeState(s){
+    var bytes = fromB64url(s);
+    if (typeof DecompressionStream === "undefined"){
+      var txt = new TextDecoder().decode(bytes);
+      return JSON.parse(txt);
+    }
+    var blob = new Blob([bytes]);
+    var ds = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+    var buf = await new Response(ds).arrayBuffer();
+    return JSON.parse(new TextDecoder().decode(buf));
+  }
+  async function buildShareLink(){
+    var share = { v: 3, items: state.items, profile: state.profile, playlists: state.playlists };
+    var token = await encodeState(share);
+    return location.origin + location.pathname + "?view#d=" + token;
   }
 
   function listCats(){
@@ -582,12 +675,12 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     var cat = it.cat||"";
     var pills = [];
     if (cat) pills.push('<button type="button" class="pill" data-filter-cat="'+esc(cat)+'">'+esc(cat)+'</button>');
-    if (it.quality) pills.push('<span class="pill ghost">📺 '+esc(it.quality)+'</span>');
+    if (it.quality) pills.push('<span class="pill ghost">'+esc(it.quality)+'</span>');
     (it.performers||[]).forEach(function(p){
-      pills.push('<button type="button" class="pill ghost" data-filter-perf="'+esc(p)+'">👤 '+esc(p)+'</button>');
+      pills.push('<button type="button" class="pill ghost" data-filter-perf="'+esc(p)+'">'+esc(p)+'</button>');
     });
     (it.groups||[]).forEach(function(g){
-      pills.push('<button type="button" class="pill ghost" data-filter-grp="'+esc(g)+'">👥 '+esc(g)+'</button>');
+      pills.push('<button type="button" class="pill ghost" data-filter-grp="'+esc(g)+'">'+esc(g)+'</button>');
     });
     (it.tags||[]).forEach(function(t){
       pills.push('<span class="tag">#'+esc(t)+'</span>');
@@ -599,7 +692,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     var favStar = '<span class="star '+(it.favorite?'on':'')+'" data-fav="'+it.id+'" title="お気に入り">★</span>';
     var statusLabels = {unwatched:"未視聴",watching:"視聴中",watched:"視聴済み"};
     var status = '<button type="button" class="status-pill status-'+it.watchStatus+'" data-status="'+it.id+'">'+statusLabels[it.watchStatus]+'</button>';
-    var playlist = it.playlist ? '<span class="pill dark" data-filter-pl="' + esc(it.playlist) + '">▶ '+esc(it.playlist)+'</span>' : "";
+    var playlist = it.playlist ? '<span class="pill dark" data-filter-pl="' + esc(it.playlist) + '">PL '+esc(it.playlist)+'</span>' : "";
     var acts = viewMode ? "" :
       '<div class="card-act">'+
         '<button class="btn" data-edit="'+it.id+'">編集</button>'+
@@ -798,7 +891,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   }
 
   function exportJSON(){
-    var data = { items: state.items, profile: state.profile, playlists: state.playlists, version: 2 };
+    var data = { items: state.items, profile: state.profile, playlists: state.playlists, version: 3 };
     var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -830,6 +923,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     a.click();
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   }
+
   function parseCSV(text){
     text = text.replace(/^\uFEFF/, "");
     var rows = []; var row = []; var cur = ""; var inQ = false;
@@ -852,6 +946,76 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     }
     if (cur!=="" || row.length){ row.push(cur); rows.push(row); }
     return rows;
+  }
+  function splitPipes(line){
+    return line.replace(/^\s*\|/,"").replace(/\|\s*$/,"").split("|");
+  }
+  function splitMulti(s){
+    return s.split(/[,、;|]/).map(function(t){return t.trim();}).filter(Boolean);
+  }
+  function parseNotionMD(text){
+    var lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+    var firstTableRow = null;
+    for (var i=0;i<lines.length;i++){
+      var L = lines[i];
+      if (/^\s*\|/.test(L) && i+1<lines.length && /^\s*\|?\s*:?-{2,}/.test(lines[i+1])){
+        firstTableRow = i;
+        break;
+      }
+    }
+    if (firstTableRow !== null){
+      var headerLine = lines[firstTableRow];
+      var headers = splitPipes(headerLine).map(function(s){ return s.trim(); });
+      var rows = [];
+      for (var j=firstTableRow+2;j<lines.length;j++){
+        var L2 = lines[j];
+        if (!/^\s*\|/.test(L2)) break;
+        var cells = splitPipes(L2).map(function(s){ return s.trim(); });
+        if (!cells.some(function(c){return c!=="";})) continue;
+        rows.push(cells);
+      }
+      csvFormat = "csv";
+      return { headers: headers, rows: rows };
+    }
+    var rows2 = [];
+    var currentCat = "";
+    for (var k=0;k<lines.length;k++){
+      var L3 = lines[k];
+      var hm = L3.match(/^#{1,6}\s+(.+)/);
+      if (hm){ currentCat = hm[1].trim(); continue; }
+      var lm = L3.match(/^\s*[-*]\s+(.*)/);
+      if (lm){
+        var item = lm[1];
+        var title = "", url="", cat = currentCat, memo="", tags=[], performers=[], groups=[], quality="";
+        var tm = item.match(/\[([^\]]+)\]\(([^)]+)\)/);
+        if (tm){ title = tm[1]; url = tm[2]; var rest = item.replace(tm[0], "").trim(); }
+        else {
+          var um = item.match(/(https?:\/\/\S+)/);
+          if (um){ url = um[1]; title = item.replace(url, "").trim().replace(/^[::、\-\s]+/,""); }
+          else { title = item.trim(); }
+          var rest = "";
+        }
+        var entries = rest.split(/[、;]|\s{2,}/);
+        var trailing = [];
+        entries.forEach(function(e){
+          var em = e.match(/^(出演者|キャスト|グループ|タグ|メモ|画質|カテゴリ|ジャンル)\s*[:：]\s*(.+)/);
+          if (em){
+            var k2 = em[1], v = em[2].trim();
+            if (k2==="出演者"||k2==="キャスト") performers = performers.concat(splitMulti(v));
+            else if (k2==="グループ") groups = groups.concat(splitMulti(v));
+            else if (k2==="タグ") tags = tags.concat(splitMulti(v));
+            else if (k2==="メモ") memo = (memo ? memo+" / " : "") + v;
+            else if (k2==="画質") quality = v;
+            else if (k2==="カテゴリ"||k2==="ジャンル") cat = v;
+          } else if (e.trim()) trailing.push(e.trim());
+        });
+        if (trailing.length) memo = (memo ? memo+" / " : "") + trailing.join(" / ");
+        rows2.push([title, url, cat||"", quality||"", performers.join("; "), groups.join("; "), tags.join(", "), memo||""]);
+      }
+    }
+    var headers2 = ["title","url","cat","quality","performers","groups","tags","memo"];
+    csvFormat = "md-bullet";
+    return { headers: headers2, rows: rows2.filter(function(r){ return r[0] && r[1]; }) };
   }
   function detectCols(headers){
     var lower = headers.map(function(h){return String(h||"").trim().toLowerCase();});
@@ -893,7 +1057,9 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       var text = reader.result;
       var format = el("impFormat").value;
       if (format === "auto"){
-        if (file.name.toLowerCase().endsWith(".csv")) format = "csv";
+        var n = file.name.toLowerCase();
+        if (n.endsWith(".csv")) format = "csv";
+        else if (n.endsWith(".md")||n.endsWith(".markdown")) format = "md";
         else format = "json";
       }
       if (format === "json"){
@@ -910,11 +1076,38 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         }catch(e){ alert("JSONの読み込みに失敗しました。"); }
         return;
       }
-      csvBuffer = parseCSV(text);
-      if (!csvBuffer.length){ alert("CSVが空です。"); return; }
-      var headers = csvBuffer[0];
-      var detected = detectCols(headers);
-      var opts = ['<option value="">(なし)</option>'].concat(headers.map(function(h){ return '<option value="'+esc(h)+'">'+esc(h)+'</option>'; }).join(""));
+      var parsed = (format === "md") ? parseNotionMD(text) : { headers: parseCSV(text)[0], rows: parseCSV(text).slice(1) };
+      csvBuffer = parsed.rows;
+      csvHeaders = parsed.headers;
+      if (!csvBuffer || !csvBuffer.length){ alert("データ行が見つかりません。"); return; }
+      var detected = detectCols(csvHeaders);
+      var opts = '<option value="">(なし)</option>' + csvHeaders.map(function(h){ return '<option value="'+esc(h)+'">'+esc(h)+'</option>'; }).join("");
+
+      if (csvFormat === "md-bullet"){
+        if (!confirm(csvBuffer.length + " 件のデータを読み込みます。よろしいですか？")) return;
+        var added = 0;
+        csvBuffer.forEach(function(r){
+          var title = r[0], url = r[1];
+          if (!title || !url) return;
+          var it = norm({
+            title: title, url: url,
+            cat: r[2], quality: r[3],
+            performers: r[4] ? r[4].split(/[;、]/).map(function(s){return s.trim();}).filter(Boolean) : [],
+            groups: r[5] ? r[5].split(/[;、]/).map(function(s){return s.trim();}).filter(Boolean) : [],
+            tags: r[6] ? r[6].split(/[、]/).map(function(s){return s.trim();}).filter(Boolean) : [],
+            memo: r[7] || "",
+            date: new Date().toISOString().slice(0,10)
+          });
+          it.id = Date.now() + "-" + added + "-" + Math.random().toString(36).slice(2,6);
+          state.items.unshift(it);
+          added++;
+        });
+        save(); render();
+        csvBuffer = null; csvHeaders = null; csvFormat = "csv";
+        alert(added + " 件読み込みました。");
+        return;
+      }
+
       ["mapTitle","mapUrl","mapCat","mapQuality","mapPerformers","mapGroups","mapTags","mapMemo","mapDate"].forEach(function(id){
         var key = id.replace("map","").toLowerCase();
         var sel = el(id);
@@ -937,10 +1130,10 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     };
     if (!map.title || !map.url){ alert("タイトル列とURL列は必須です。"); return; }
     var idx = {};
-    csvBuffer[0].forEach(function(h,i){ idx[h] = i; });
+    csvHeaders.forEach(function(h,i){ idx[h] = i; });
     function col(row, name){ return name && idx[name]!=null ? (row[idx[name]]||"").trim() : ""; }
     var added = 0;
-    for (var r=1; r<csvBuffer.length; r++){
+    for (var r=0; r<csvBuffer.length; r++){
       var row = csvBuffer[r];
       var title = col(row, map.title); var url = col(row, map.url);
       if (!title || !url) continue;
@@ -959,7 +1152,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       added++;
     }
     save(); render();
-    csvBuffer = null;
+    csvBuffer = null; csvHeaders = null; csvFormat = "csv";
     el("importDlg").close();
     el("csvMapArea").hidden = true;
     alert(added + " 件読み込みました。");
@@ -991,10 +1184,34 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     }).join("");
   }
 
+  function applyDefaultRoster(){
+    DEFAULT_ROSTER.forEach(function(g){
+      g.members.forEach(function(m){
+        if (!m.n) return;
+        if (!state.profile[m.n]) state.profile[m.n] = { groups: [] };
+        if (g.name !== "無所属" && state.profile[m.n].groups.indexOf(g.name) < 0){
+          state.profile[m.n].groups.push(g.name);
+        }
+      });
+    });
+  }
+
+  function toggleToolbar(){
+    var tb = el("toolbar");
+    var show = !tb.classList.contains("open");
+    tb.classList.toggle("open", show);
+    el("btnToggle").textContent = show ? "× 閉じる" : "≡ メニュー";
+  }
+
+  function autoCloseForPhone(){
+    if (window.innerWidth <= 760){ el("toolbar").classList.remove("open"); el("btnToggle").textContent = "≡ メニュー"; }
+  }
+
+  el("btnToggle").addEventListener("click", toggleToolbar);
   el("search").addEventListener("input", render);
   el("sortBy").addEventListener("change", function(){ state.sort = this.value; render(); });
 
-  el("tabs").addEventListener("click", function(e){
+  el("toolbar").addEventListener("click", function(e){
     var t = e.target.closest(".tab"); if (!t) return;
     el("tabs").querySelectorAll(".tab").forEach(function(x){ x.classList.remove("active"); });
     t.classList.add("active");
@@ -1107,13 +1324,13 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       save(); render(); return;
     }
     var fc = t.closest ? t.closest("[data-filter-cat]") : null;
-    if (fc){ state.filters.cats = [fc.getAttribute("data-filter-cat")]; el("filters").classList.add("open"); render(); return; }
+    if (fc){ state.filters.cats = [fc.getAttribute("data-filter-cat")]; el("filters").classList.add("open"); expandToolbarIfPhone(); render(); return; }
     var fp = t.closest ? t.closest("[data-filter-perf]") : null;
-    if (fp){ state.filters.performers = [fp.getAttribute("data-filter-perf")]; el("filters").classList.add("open"); render(); return; }
+    if (fp){ state.filters.performers = [fp.getAttribute("data-filter-perf")]; el("filters").classList.add("open"); expandToolbarIfPhone(); render(); return; }
     var fg = t.closest ? t.closest("[data-filter-grp]") : null;
-    if (fg){ state.filters.groups = [fg.getAttribute("data-filter-grp")]; el("filters").classList.add("open"); render(); return; }
+    if (fg){ state.filters.groups = [fg.getAttribute("data-filter-grp")]; el("filters").classList.add("open"); expandToolbarIfPhone(); render(); return; }
     var fpl = t.closest ? t.closest("[data-filter-pl]") : null;
-    if (fpl){ state.view = "byPlaylist"; el("tabs").querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("active", x.getAttribute("data-view")==="byPlaylist"); }); render(); return; }
+    if (fpl){ state.view = "byPlaylist"; el("tabs").querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("active", x.getAttribute("data-view")==="byPlaylist"); }); expandToolbarIfPhone(); render(); return; }
     var eb = t.closest ? t.closest("[data-edit]") : null;
     if (eb){ var ie = eb.getAttribute("data-edit"); for (var ii=0;ii<state.items.length;ii++) if (state.items[ii].id===ie){ openDialog(state.items[ii]); break; } return; }
     var db = t.closest ? t.closest("[data-del]") : null;
@@ -1125,6 +1342,9 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       }
     }
   });
+  function expandToolbarIfPhone(){
+    if (window.innerWidth <= 760){ toggleToolbar(); }
+  }
 
   el("btnProfile").addEventListener("click", function(){ renderProfile(); el("profileDlg").showModal(); });
   el("btnCloseProfile").addEventListener("click", function(){ el("profileDlg").close(); });
@@ -1158,8 +1378,9 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 
   el("btnShare").addEventListener("click", function(){
     if (!state.items.length){ alert("まだデータがありません。"); return; }
-    el("shareText").value = buildShareLink();
+    el("shareText").value = "生成中...";
     el("shareDlg").showModal();
+    buildShareLink().then(function(link){ el("shareText").value = link; });
   });
   el("btnCopyLink").addEventListener("click", function(){
     var ta = el("shareText"); ta.select();
@@ -1186,15 +1407,16 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
     this.value = "";
   });
   el("impFormat").addEventListener("change", function(){ el("csvMapArea").hidden = this.value !== "csv"; });
-  el("btnCloseImport").addEventListener("click", function(){ el("importDlg").close(); csvBuffer=null; });
+  el("btnCloseImport").addEventListener("click", function(){ el("importDlg").close(); csvBuffer=null; csvHeaders=null; });
   el("btnDoImport").addEventListener("click", doCSVImport);
+
+  window.addEventListener("resize", autoCloseForPhone);
 
   checkViewMode();
   load();
-  Object.keys(DEFAULT_PERFORMER_GROUPS).forEach(function(name){
-    if (!state.profile[name]) state.profile[name] = { groups: DEFAULT_PERFORMER_GROUPS[name].slice() };
-  });
+  applyDefaultRoster();
   save();
+  autoCloseForPhone();
   render();
 
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
