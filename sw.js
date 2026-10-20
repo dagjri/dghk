@@ -1,5 +1,5 @@
-// 動画リスト v2 - Service Worker
-var CACHE_NAME = "video-list-v2";
+// 動画リスト v3 - Service Worker
+var CACHE_NAME = "video-list-v3";
 var ASSETS = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", function (e) {
@@ -13,8 +13,7 @@ self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(
-        keys.filter(function (k) { return k !== CACHE_NAME; })
-            .map(function (k) { return caches.delete(k); })
+        keys.filter(function (k) { return k !== CACHE_NAME; }).map(function (k) { return caches.delete(k); })
       );
     })
   );
